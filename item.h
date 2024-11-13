@@ -1,5 +1,4 @@
-//
-// Created by boris nono il 25/02/2024
+
 // Classe che rappresenta un oggetto nella lista della spesa
 
 class Item {
