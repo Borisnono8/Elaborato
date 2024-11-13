@@ -1,0 +1,46 @@
+#include <gtest/gtest.h>
+#include "ShoppingList.h"
+#include "User.h"
+
+// Classe di test per ShoppingList
+class ShoppingListTest : public ::testing::Test {
+protected:
+    ShoppingList list; // Istanza di ShoppingList per i test
+    User user1;        // Istanza di User per i test
+    User user2;        // Istanza di User per i test
+
+    // Costruttore per inizializzare gli utenti e aggiungerli come osservatori
+    ShoppingListTest() : user1("Alice"), user2("Bob") {
+        list.addObserver(&user1);
+        list.addObserver(&user2);
+    }
+};
+
+// Test per verificare l'aggiunta di un oggetto alla lista
+TEST_F(ShoppingListTest, AddItem) {
+    list.addItem(Item("Latte", "Bevande", 2));
+    ASSERT_EQ(list.getItems().size(), 1); // Verifica che la lista contenga un oggetto
+    EXPECT_EQ(list.getItems()[0].name, "Latte"); // Verifica che l'oggetto sia "Latte"
+}
+
+// Test per verificare la rimozione di un oggetto dalla lista
+TEST_F(ShoppingListTest, RemoveItem) {
+    list.addItem(Item("Latte", "Bevande", 2));
+    list.removeItem("Latte");
+    ASSERT_EQ(list.getItems().size(), 0); // Verifica che la lista sia vuota
+}
+
+// Test per verificare la notifica degli osservatori
+TEST_F(ShoppingListTest, NotifyObservers) {
+    testing::internal::CaptureStdout(); // Cattura l'output standard
+    list.addItem(Item("Pane", "Alimenti", 1));
+    std::string output = testing::internal::GetCapturedStdout(); // Ottiene l'output catturato
+    EXPECT_NE(output.find("Aggiornamento per Alice"), std::string::npos); // Verifica che Alice sia stata notificata
+    EXPECT_NE(output.find("Aggiornamento per Bob"), std::string::npos);   // Verifica che Bob sia stato notificato
+}
+
+// Funzione principale per eseguire i test
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
