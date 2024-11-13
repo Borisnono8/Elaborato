@@ -1,0 +1,15 @@
+int main() {
+    ShoppingList list; // Crea una nuova lista della spesa
+    User user1("Alice"); // Crea un nuovo utente Alice
+    User user2("Bob");   // Crea un nuovo utente Bob
+
+    list.addObserver(&user1); // Aggiunge Alice come osservatore della lista
+    list.addObserver(&user2); // Aggiunge Bob come osservatore della lista
+
+    list.addItem(Item("Latte", "Bevande", 2)); // Aggiunge "Latte" alla lista
+    list.addItem(Item("Pane", "Alimenti", 1)); // Aggiunge "Pane" alla lista
+
+    list.removeItem("Latte"); // Rimuove "Latte" dalla lista
+
+    return 0;
+}
