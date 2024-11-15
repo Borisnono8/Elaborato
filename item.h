@@ -10,9 +10,3 @@ public:
     // Costruttore per inizializzare un oggetto Item
     Item(std::string n, std::string c, int q) : name(n), category(c), quantity(q) {}
 };
-
-#ifndef NONO_LABPROGRAMMAZIONE_ITEM_H
-#define NONO_LABPROGRAMMAZIONE_ITEM_H
-
-
-#endif //NONO_LABPROGRAMMAZIONE_ITEM_H
