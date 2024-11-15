@@ -1,3 +1,5 @@
+
+//
 // Classe che rappresenta un utente che osserva una lista della spesa
 class User : public Observer {
 private:
