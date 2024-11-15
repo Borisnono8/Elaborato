@@ -1,15 +1,42 @@
+#include <iostream>
+#include "shoopinglist.h" 
+
+class Osservatore {
+public:
+    virtual void aggiorna() = 0;
+};
+
+class OsservatoreConcreto : public Osservatore {
+public:
+    void aggiorna() override {
+        std::cout << "La lista della spesa è stata aggiornata." << std::endl;
+    }
+};
+
 int main() {
-    ShoppingList list; // Crea una nuova lista della spesa
-    User user1("Alice"); // Crea un nuovo utente Alice
-    User user2("Bob");   // Crea un nuovo utente Bob
+    ListaDellaSpesa lista;
+    OsservatoreConcreto osservatore;
 
-    list.addObserver(&user1); // Aggiunge Alice come osservatore della lista
-    list.addObserver(&user2); // Aggiunge Bob come osservatore della lista
+    lista.aggiungiOsservatore(&osservatore);
 
-    list.addItem(Item("Latte", "Bevande", 2)); // Aggiunge "Latte" alla lista
-    list.addItem(Item("Pane", "Alimenti", 1)); // Aggiunge "Pane" alla lista
+    try {
+        lista.aggiungiItem(Item("Latte", 2));
+        lista.aggiungiItem(Item("Pane", 1));
+        lista.aggiungiItem(Item("Uova", 12));
 
-    list.removeItem("Latte"); // Rimuove "Latte" dalla lista
+        std::cout << "Numero totale di articoli: " << lista.getNumeroTotaleItems() << std::endl;
+        std::cout << "Articoli da comprare: " << lista.getItemsDaComprare() << std::endl;
+
+        lista.impostaItemComeComprato("Pane");
+
+        std::cout << "Articoli da comprare dopo aver comprato il pane: " << lista.getItemsDaComprare() << std::endl;
+
+        lista.rimuoviItem("Uova");
+
+        std::cout << "Numero totale di articoli dopo aver rimosso le uova: " << lista.getNumeroTotaleItems() << std::endl;
+    } catch (const std::invalid_argument& e) {
+        std::cerr << "Errore: " << e.what() << std::endl;
+    }
 
     return 0;
 }
