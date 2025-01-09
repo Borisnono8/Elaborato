@@ -1,6 +1,0 @@
-// Metodo per notificare tutti gli osservatori della lista
-void ShoppingList::notifyObservers() {
-    for (Observer* observer : observers) {
-        observer->update(*this);
-    }
-}
