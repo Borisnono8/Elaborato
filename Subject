@@ -1,1 +1,31 @@
 
+#pragma once
+#include <vector>
+#include <algorithm>
+
+#include "Observer.h"
+
+class Observer;
+
+class Subject {
+public:
+    virtual ~Subject() = default;
+
+    void aggiungiOsservatore(Observer* osservatore) {
+        osservatori.push_back(osservatore);
+    }
+
+    void rimuoviOsservatore(Observer* osservatore) {
+        osservatori.erase(std::ranges::remove(osservatori, osservatore).begin(), osservatori.end());
+    }
+
+protected:
+    void notificaOsservatori() {
+        for (auto& osservatore : osservatori) {
+            osservatore->aggiorna();
+        }
+    }
+
+private:
+    std::vector<Observer*> osservatori;
+};
