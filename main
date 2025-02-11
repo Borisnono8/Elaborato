@@ -1,42 +1,70 @@
+
+
+
+        #pragma once
 #include <iostream>
-#include "shoopinglist.h" 
+#include "Item.h"
+#include "Shoppinglist.h"
+#include "Observer.h"
+#include "Subject.h"
+#include "ConcreteUser.h"
 
-class Osservatore {
+class ConcreteObserver : public Observer {
 public:
-    virtual void aggiorna() = 0;
-};
-
-class OsservatoreConcreto : public Osservatore {
-public:
-    void aggiorna() override {
-        std::cout << "La lista della spesa è stata aggiornata." << std::endl;
+    void update() override {
+        std::cout << "La lista della spesa è stata aggiornata!" << std::endl;
     }
 };
 
 int main() {
     ListaDellaSpesa lista;
-    OsservatoreConcreto osservatore;
 
+    // Aggiungi un osservatore
+    ConcreteObserver osservatore;
     lista.aggiungiOsservatore(&osservatore);
 
-    try {
-        lista.aggiungiItem(Item("Latte", 2));
-        lista.aggiungiItem(Item("Pane", 1));
-        lista.aggiungiItem(Item("Uova", 12));
+    // Crea un utente
+    ConcreteUser user("Mario");
 
-        std::cout << "Numero totale di articoli: " << lista.getNumeroTotaleItems() << std::endl;
-        std::cout << "Articoli da comprare: " << lista.getItemsDaComprare() << std::endl;
+    // Abbonati alla lista della spesa
+    user.subscribeToList(&lista);
 
-        lista.impostaItemComeComprato("Pane");
+    // Aggiungi alcuni articoli
+    lista.aggiungiItem(Item("Pane", "Alimentari", 2));
+    lista.aggiungiItem(Item("Latte", "Alimentari", 1));
+    lista.aggiungiItem(Item("Sapone", "Igiene", 3));
 
-        std::cout << "Articoli da comprare dopo aver comprato il pane: " << lista.getItemsDaComprare() << std::endl;
+    // Rimuovi un articolo
+    lista.rimuoviItem("Latte");
 
-        lista.rimuoviItem("Uova");
+    // Imposta un articolo come comprato
+    lista.impostaItemComeComprato("Pane");
 
-        std::cout << "Numero totale di articoli dopo aver rimosso le uova: " << lista.getNumeroTotaleItems() << std::endl;
-    } catch (const std::invalid_argument& e) {
-        std::cerr << "Errore: " << e.what() << std::endl;
+    // Visualizza la lista della spesa
+    user.update();
+
+    // Ottieni il numero di articoli da comprare
+    std::cout << "Articoli da comprare: " << lista.getItemsDaComprare() << std::endl;
+
+    // Ottieni il numero totale di articoli
+    std::cout << "Numero totale di articoli: " << lista.getNumeroTotaleItems() << std::endl;
+
+    // Cerca un articolo
+    if (Item* item = lista.cercaItem("Sapone")) {
+        std::cout << "Articolo trovato: " << item->name << std::endl;
+    } else {
+        std::cout << "Articolo non trovato" << std::endl;
     }
+
+    // Ottieni articoli per categoria
+    std::vector<Item> alimentari = lista.getItemsPerCategoria("Alimentari");
+    std::cout << "Articoli nella categoria 'Alimentari':" << std::endl;
+    for (const auto& i : alimentari) {
+        std::cout << "- " << i.name << std::endl;
+    }
+
+    // Disiscrivi l'utente dalla lista della spesa
+    user.unsubscribeFromList();
 
     return 0;
 }
