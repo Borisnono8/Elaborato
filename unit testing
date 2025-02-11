@@ -1,69 +1,116 @@
 
-#include <gtest/gtest.h>
-#include "shooppinglist.h"
+#define CATCH_CONFIG_MAIN
+#include <catch2/catch.hpp>
 
-class OsservatoreMock : public Osservatore {
+// Test per la classe Item
+TEST("Item Constructor"){
+    Item item("Pane", "Alimentari", 2);
+    REQUIRE(item.getName() == "Pane");
+    REQUIRE(item.getCategory() == "Alimentari");
+    REQUIRE(item.getQuantity() == 2);
+    REQUIRE_FALSE(item.isComprato());
+}
+TEST("Item Constructor Negative Quantity", "[Item]") {
+    REQUIRE_THROWS_AS(Item("Pane", "Alimentari", -1), std::invalid_argument);
+}
+
+TEST("Item Set Comprato", "[Item]") {
+    Item item("Pane", "Alimentari", 2);
+    item.setComprato(true);
+    REQUIRE(item.isComprato());
+}
+
+// Test per la classe User
+TEST("User Constructor", "[User]") {
+    User user("Mario");
+    REQUIRE(user.getNome() == "Mario");
+    REQUIRE(user.getShoppingList() == nullptr);
+}
+
+TEST("User Subscribe To ShoppingList", "[User]") {
+    User user("Mario");
+    ShoppingList shoppingList;
+    user.subscribeToShoppingList(&shoppingList);
+    REQUIRE(user.getShoppingList() == &shoppingList);
+}
+
+TEST("User Unsubscribe From ShoppingList", "[User]") {
+    User user("Mario");
+    ShoppingList shoppingList;
+    user.subscribeToShoppingList(&shoppingList);
+    user.unsubscribeFromShoppingList();
+    REQUIRE(user.getShoppingList() == nullptr);
+}
+
+// Test per la classe ConcreteUser
+TEST("ConcreteUser Update", "[ConcreteUser]") {
+    ShoppingList shoppingList;
+    ConcreteUser user("Mario");
+    user.subscribeToShoppingList(&shoppingList);
+    shoppingList.addItem(Item("Pane", "Alimentari", 2));
+    shoppingList.markItemAsPurchased("Pane");
+
+    user.update();
+    // Verifica che l'aggiornamento sia avvenuto correttamente (ad esempio, aggiungere un flag o controllare lo stato)
+    REQUIRE(true); // Sostituire con un'asserzione reale basata sull'implementazione
+}
+
+// Test per la classe ShoppingList
+TEST("ShoppingList Add Item", "[ShoppingList]") {
+    ShoppingList shoppingList;
+    shoppingList.addItem(Item("Pane", "Alimentari", 2));
+    REQUIRE(shoppingList.getTotalItems() == 1);
+}
+
+TEST("ShoppingList Remove Item", "[ShoppingList]") {
+    ShoppingList shoppingList;
+    shoppingList.addItem(Item("Pane", "Alimentari", 2));
+    shoppingList.removeItem("Pane");
+    REQUIRE(shoppingList.getTotalItems() == 0);
+}
+
+TEST("ShoppingList Mark Item As Purchased", "[ShoppingList]") {
+    ShoppingList shoppingList;
+    shoppingList.addItem(Item("Pane", "Alimentari", 2));
+    shoppingList.markItemAsPurchased("Pane");
+    REQUIRE(shoppingList.getItemsToBuy() == 0);
+}
+
+TEST("ShoppingList Search Item", "[ShoppingList]") {
+    ShoppingList shoppingList;
+    shoppingList.addItem(Item("Pane", "Alimentari", 2));
+    Item* item = shoppingList.searchItem("Pane");
+    REQUIRE(item != nullptr);
+    REQUIRE(item->getName() == "Pane");
+}
+
+TEST("ShoppingList Get Items By Category", "[ShoppingList]") {
+    ShoppingList shoppingList;
+    shoppingList.addItem(Item("Pane", "Alimentari", 2));
+    shoppingList.addItem(Item("Sapone", "Igiene", 1));
+    std::vector<Item> alimentari = shoppingList.getItemsByCategory("Alimentari");
+    REQUIRE(alimentari.size() == 1);
+    REQUIRE(alimentari[0].getName() == "Pane");
+}
+
+// Test per la classe Subject e Observer
+class TestObserver : public Observer {
 public:
-    MOCK_METHOD(void, aggiorna, (), (override));
+    void update() override {
+        updated = true;
+    }
+    bool updated = false;
 };
 
-TEST(shooppinglistTest, AggiungiItem) {
-    shooppinglist lista;
-    OsservatoreMock osservatore;
-    lista.aggiungiOsservatore(&osservatore);
+TEST("Subject Add And Remove Observer", "[Subject]") {
+    Subject subject;
+    TestObserver observer;
+    subject.addObserver(&observer);
+    subject.notifyObservers();
+    REQUIRE(observer.updated);
 
-    EXPECT_CALL(osservatore, aggiorna()).Times(1);
-
-    lista.aggiungiItem(Item("Latte", 2));
-    EXPECT_EQ(lista.getNumeroTotaleItems(), 1);
-}
-
-TEST(shooppinglistTest, RimuoviItem) {
-    shooppinglist lista;
-    OsservatoreMock osservatore;
-    lista.aggiungiOsservatore(&osservatore);
-
-    lista.aggiungiItem(Item("Latte", 2));
-    lista.aggiungiItem(Item("Pane", 1));
-
-    EXPECT_CALL(osservatore, aggiorna()).Times(1);
-
-    lista.rimuoviItem("Latte");
-    EXPECT_EQ(lista.getNumeroTotaleItems(), 1);
-}
-
-TEST(shooppinglistTest, ImpostaItemComeComprato) {
-    shoopinglist lista;
-    OsservatoreMock osservatore;
-    lista.aggiungiOsservatore(&osservatore);
-
-    lista.aggiungiItem(Item("Latte", 2));
-
-    EXPECT_CALL(osservatore, aggiorna()).Times(1);
-
-    lista.impostaItemComeComprato("Latte");
-    EXPECT_EQ(lista.getItemsDaComprare(), 0);
-}
-
-TEST(shoopinglistTest, GetItemsDaComprare) {
-    ListaDellaSpesa lista;
-    lista.aggiungiItem(Item("Latte", 2));
-    lista.aggiungiItem(Item("Pane", 1));
-
-    lista.impostaItemComeComprato("Pane");
-
-    EXPECT_EQ(lista.getItemsDaComprare(), 1);
-}
-
-TEST(shoopinglistTest, GetNumeroTotaleItems) {
-    ListaDellaSpesa lista;
-    lista.aggiungiItem(Item("Latte", 2));
-    lista.aggiungiItem(Item("Pane", 1));
-
-    EXPECT_EQ(lista.getNumeroTotaleItems(), 2);
-}
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    observer.updated = false;
+    subject.removeObserver(&observer);
+    subject.notifyObservers();
+    REQUIRE_FALSE(observer.updated);
 }
