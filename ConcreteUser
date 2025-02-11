@@ -1,1 +1,21 @@
 
+#ifndef CONCRETEUSER_H
+#define CONCRETEUSER_H
+#pragma once
+
+#include "User.h"
+
+class ConcreteUser : public User {
+public:
+    explicit ConcreteUser(std::string n) : User(std::move(n)) {}
+
+    void update() override {
+        if (getLista()) {
+            std::cout << "Aggiornamento per " << getNome() << ": " << std::endl;
+        } else {
+            std::cout << "Nessuna lista della spesa associata." << std::endl;
+        }
+    }
+};
+
+#endif // CONCRETEUSER_H
