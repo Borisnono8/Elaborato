@@ -1,8 +1,7 @@
-
-
-
-        #pragma once
+#pragma once
 #include <iostream>
+#include <vector>
+#include <string>
 #include "Item.h"
 #include "Shoppinglist.h"
 #include "Observer.h"
@@ -51,7 +50,7 @@ int main() {
 
     // Cerca un articolo
     if (Item* item = lista.cercaItem("Sapone")) {
-        std::cout << "Articolo trovato: " << item->name << std::endl;
+        std::cout << "Articolo trovato: " << item->getName() << std::endl; // Usa il getter per il nome
     } else {
         std::cout << "Articolo non trovato" << std::endl;
     }
@@ -60,7 +59,7 @@ int main() {
     std::vector<Item> alimentari = lista.getItemsPerCategoria("Alimentari");
     std::cout << "Articoli nella categoria 'Alimentari':" << std::endl;
     for (const auto& i : alimentari) {
-        std::cout << "- " << i.name << std::endl;
+        std::cout << "- " << i.getName() << std::endl; // Usa il getter per il nome
     }
 
     // Disiscrivi l'utente dalla lista della spesa
@@ -68,3 +67,4 @@ int main() {
 
     return 0;
 }
+
