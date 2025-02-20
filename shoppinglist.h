@@ -1,19 +1,17 @@
 #pragma once
-
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <iostream>
 #include "Subject.h"
-#include "Item.h" // Includi la definizione della classe Item
+#include "Item.h"
 
-class ListaDellaSpesa: public Subject {
+class ListaDellaSpesa : public Subject {
 public:
     void aggiungiItem(const Item& item) {
-        auto it = std::find_if(items.begin(), items.end(), [&item](const Item& i) {
+        auto it = std::ranges::find_if(items, [&item](const Item& i) {
             return i.getName() == item.getName(); // Usa il getter per il nome
         });
-
         if (it == items.end()) {
             items.push_back(item);
             notificaOsservatori(); // Notifica gli osservatori dell'aggiornamento
@@ -23,19 +21,38 @@ public:
     }
 
     void rimuoviItem(const std::string& nomeItem) {
-        std::erase_if(items, [&nomeItem](const Item& item) {
+        if (items.empty()) {
+            std::cout << "La lista è vuota, non ci sono oggetti da rimuovere." << std::endl;
+            return;
+        }
+
+        auto it = std::ranges::find_if(items, [&nomeItem](const Item& item) {
             return item.getName() == nomeItem; // Usa il getter per il nome
         });
-        notificaOsservatori(); // Notifica gli osservatori dell'aggiornamento
+
+        if (it != items.end()) {
+            items.erase(it);
+            notificaOsservatori(); // Notifica gli osservatori dell'aggiornamento
+        } else {
+            std::cout << "L'oggetto " << nomeItem << " non è presente nella lista." << std::endl;
+        }
     }
 
     void impostaItemComeComprato(const std::string& nomeItem) {
-        for (auto& item : items) {
-            if (item.getName() == nomeItem) { // Usa il getter per il nome
-                item.setComprato(true); // Usa il setter per lo stato comprato
-                notificaOsservatori(); // Notifica gli osservatori dell'aggiornamento
-                return;
-            }
+        if (items.empty()) {
+            std::cout << "La lista è vuota, non ci sono oggetti da marcare come comprati." << std::endl;
+            return;
+        }
+
+        auto it = std::ranges::find_if(items, [&nomeItem](const Item& item) {
+            return item.getName() == nomeItem; // Usa il getter per il nome
+        });
+
+        if (it != items.end()) {
+            it->setComprato(true); // Usa il setter per lo stato comprato
+            notificaOsservatori(); // Notifica gli osservatori dell'aggiornamento
+        } else {
+            std::cout << "L'oggetto " << nomeItem << " non è presente nella lista." << std::endl;
         }
     }
 
@@ -53,7 +70,6 @@ public:
         auto it = std::ranges::find_if(items, [&nomeItem](const Item& item) {
             return item.getName() == nomeItem; // Usa il getter per il nome
         });
-
         if (it != items.end()) {
             return &(*it);
         } else {
@@ -69,13 +85,13 @@ public:
         return itemsCategoria;
     }
 
-    void getItems();
+    void getItems() {
+        for (const auto& item : items) {
+            std::cout << "Nome: " << item.getName() << ", Categoria: " << item.getCategory()
+                      << ", Comprato: " << (item.isComprato() ? "Sì" : "No") << std::endl;
+        }
+    }
 
 private:
     std::vector<Item> items;
 };
-
-
-               
-
-   
