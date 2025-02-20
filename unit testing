@@ -1,40 +1,46 @@
-
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
+#include "ConcreteUser.h"
+#include "Item.h"
+#include "Observer.h"
+#include "Shoppinglist.h"
+#include "Subject.h"
+#include "User.h"
 
 // Test per la classe Item
-TEST("Item Constructor"){
+TEST_CASE("Item Constructor", "[Item]") {
     Item item("Pane", "Alimentari", 2);
     REQUIRE(item.getName() == "Pane");
     REQUIRE(item.getCategory() == "Alimentari");
     REQUIRE(item.getQuantity() == 2);
     REQUIRE_FALSE(item.isComprato());
 }
-TEST("Item Constructor Negative Quantity", "[Item]") {
+
+TEST_CASE("Item Constructor Negative Quantity", "[Item]") {
     REQUIRE_THROWS_AS(Item("Pane", "Alimentari", -1), std::invalid_argument);
 }
 
-TEST("Item Set Comprato", "[Item]") {
+TEST_CASE("Item Set Comprato", "[Item]") {
     Item item("Pane", "Alimentari", 2);
     item.setComprato(true);
     REQUIRE(item.isComprato());
 }
 
 // Test per la classe User
-TEST("User Constructor", "[User]") {
+TEST_CASE("User Constructor", "[User]") {
     User user("Mario");
     REQUIRE(user.getNome() == "Mario");
     REQUIRE(user.getShoppingList() == nullptr);
 }
 
-TEST("User Subscribe To ShoppingList", "[User]") {
+TEST_CASE("User Subscribe To ShoppingList", "[User]") {
     User user("Mario");
     ShoppingList shoppingList;
     user.subscribeToShoppingList(&shoppingList);
     REQUIRE(user.getShoppingList() == &shoppingList);
 }
 
-TEST("User Unsubscribe From ShoppingList", "[User]") {
+TEST_CASE("User Unsubscribe From ShoppingList", "[User]") {
     User user("Mario");
     ShoppingList shoppingList;
     user.subscribeToShoppingList(&shoppingList);
@@ -43,7 +49,7 @@ TEST("User Unsubscribe From ShoppingList", "[User]") {
 }
 
 // Test per la classe ConcreteUser
-TEST("ConcreteUser Update", "[ConcreteUser]") {
+TEST_CASE("ConcreteUser Update", "[ConcreteUser]") {
     ShoppingList shoppingList;
     ConcreteUser user("Mario");
     user.subscribeToShoppingList(&shoppingList);
@@ -56,27 +62,41 @@ TEST("ConcreteUser Update", "[ConcreteUser]") {
 }
 
 // Test per la classe ShoppingList
-TEST("ShoppingList Add Item", "[ShoppingList]") {
+TEST_CASE("ShoppingList Add Item", "[ShoppingList]") {
     ShoppingList shoppingList;
     shoppingList.addItem(Item("Pane", "Alimentari", 2));
     REQUIRE(shoppingList.getTotalItems() == 1);
 }
 
-TEST("ShoppingList Remove Item", "[ShoppingList]") {
+TEST_CASE("ShoppingList Remove Item", "[ShoppingList]") {
     ShoppingList shoppingList;
     shoppingList.addItem(Item("Pane", "Alimentari", 2));
     shoppingList.removeItem("Pane");
     REQUIRE(shoppingList.getTotalItems() == 0);
 }
 
-TEST("ShoppingList Mark Item As Purchased", "[ShoppingList]") {
+TEST_CASE("ShoppingList Remove Non-Existent Item", "[ShoppingList]") {
+    ShoppingList shoppingList;
+    shoppingList.addItem(Item("Pane", "Alimentari", 2));
+    shoppingList.removeItem("Latte"); // Prova a rimuovere un oggetto inesistente
+    REQUIRE(shoppingList.getTotalItems() == 1); // La lista non deve cambiare
+}
+
+TEST_CASE("ShoppingList Mark Item As Purchased", "[ShoppingList]") {
     ShoppingList shoppingList;
     shoppingList.addItem(Item("Pane", "Alimentari", 2));
     shoppingList.markItemAsPurchased("Pane");
     REQUIRE(shoppingList.getItemsToBuy() == 0);
 }
 
-TEST("ShoppingList Search Item", "[ShoppingList]") {
+TEST_CASE("ShoppingList Mark Non-Existent Item As Purchased", "[ShoppingList]") {
+    ShoppingList shoppingList;
+    shoppingList.addItem(Item("Pane", "Alimentari", 2));
+    shoppingList.markItemAsPurchased("Latte"); // Prova a marcare un oggetto inesistente
+    REQUIRE(shoppingList.getItemsToBuy() == 1); // La lista non deve cambiare
+}
+
+TEST_CASE("ShoppingList Search Item", "[ShoppingList]") {
     ShoppingList shoppingList;
     shoppingList.addItem(Item("Pane", "Alimentari", 2));
     Item* item = shoppingList.searchItem("Pane");
@@ -84,13 +104,30 @@ TEST("ShoppingList Search Item", "[ShoppingList]") {
     REQUIRE(item->getName() == "Pane");
 }
 
-TEST("ShoppingList Get Items By Category", "[ShoppingList]") {
+TEST_CASE("ShoppingList Search Non-Existent Item", "[ShoppingList]") {
+    ShoppingList shoppingList;
+    shoppingList.addItem(Item("Pane", "Alimentari", 2));
+    Item* item = shoppingList.searchItem("Latte"); // Prova a cercare un oggetto inesistente
+    REQUIRE(item == nullptr);
+}
+
+TEST_CASE("ShoppingList Get Items By Category", "[ShoppingList]") {
     ShoppingList shoppingList;
     shoppingList.addItem(Item("Pane", "Alimentari", 2));
     shoppingList.addItem(Item("Sapone", "Igiene", 1));
+    shoppingList.addItem(Item("Mele", "Frutta", 5));
+    shoppingList.addItem(Item("Banane", "Frutta", 4));
+    shoppingList.addItem(Item("Pera", "Frutta", 3));
+
     std::vector<Item> alimentari = shoppingList.getItemsByCategory("Alimentari");
     REQUIRE(alimentari.size() == 1);
     REQUIRE(alimentari[0].getName() == "Pane");
+
+    std::vector<Item> frutta = shoppingList.getItemsByCategory("Frutta");
+    REQUIRE(frutta.size() == 3); // Verifica che ci siano 3 oggetti nella categoria "Frutta"
+    REQUIRE(frutta[0].getName() == "Mele");
+    REQUIRE(frutta[1].getName() == "Banane");
+    REQUIRE(frutta[2].getName() == "Pera");
 }
 
 // Test per la classe Subject e Observer
@@ -102,7 +139,7 @@ public:
     bool updated = false;
 };
 
-TEST("Subject Add And Remove Observer", "[Subject]") {
+TEST_CASE("Subject Add And Remove Observer", "[Subject]") {
     Subject subject;
     TestObserver observer;
     subject.addObserver(&observer);
