@@ -1,4 +1,3 @@
-#pragma once
 #include <iostream>
 #include <vector>
 #include <string>
@@ -32,34 +31,59 @@ int main() {
     lista.aggiungiItem(Item("Pane", "Alimentari", 2));
     lista.aggiungiItem(Item("Latte", "Alimentari", 1));
     lista.aggiungiItem(Item("Sapone", "Igiene", 3));
-
-    // Rimuovi un articolo
-    lista.rimuoviItem("Latte");
-
-    // Imposta un articolo come comprato
-    lista.impostaItemComeComprato("Pane");
+    lista.aggiungiItem(Item("Mele", "Frutta", 5));
+    lista.aggiungiItem(Item("Banane", "Frutta", 4));
+    lista.aggiungiItem(Item("Pera", "Frutta", 3));
 
     // Visualizza la lista della spesa
-    user.update();
+    std::cout << "Lista della spesa iniziale:" << std::endl;
+    lista.getItems();
+
+    // Prova a rimuovere un oggetto esistente
+    std::cout << "\nRimuovo 'Latte':" << std::endl;
+    lista.rimuoviItem("Latte");
+    lista.getItems();
+
+    // Prova a rimuovere un oggetto inesistente
+    std::cout << "\nProvo a rimuovere 'Pasta' (inesistente):" << std::endl;
+    lista.rimuoviItem("Pasta");
+    lista.getItems();
+
+    // Prova a marcare come comprato un oggetto esistente
+    std::cout << "\nImposto 'Pane' come comprato:" << std::endl;
+    lista.impostaItemComeComprato("Pane");
+    lista.getItems();
+
+    // Prova a marcare come comprato un oggetto inesistente
+    std::cout << "\nProvo a impostare 'Pasta' come comprato (inesistente):" << std::endl;
+    lista.impostaItemComeComprato("Pasta");
+    lista.getItems();
 
     // Ottieni il numero di articoli da comprare
-    std::cout << "Articoli da comprare: " << lista.getItemsDaComprare() << std::endl;
+    std::cout << "\nArticoli da comprare: " << lista.getItemsDaComprare() << std::endl;
 
     // Ottieni il numero totale di articoli
     std::cout << "Numero totale di articoli: " << lista.getNumeroTotaleItems() << std::endl;
 
-    // Cerca un articolo
+    // Cerca un articolo esistente
     if (Item* item = lista.cercaItem("Sapone")) {
+        std::cout << "\nArticolo trovato: " << item->getName() << std::endl; // Usa il getter per il nome
+    } else {
+        std::cout << "\nArticolo non trovato" << std::endl;
+    }
+
+    // Cerca un articolo inesistente
+    if (Item* item = lista.cercaItem("Pasta")) {
         std::cout << "Articolo trovato: " << item->getName() << std::endl; // Usa il getter per il nome
     } else {
         std::cout << "Articolo non trovato" << std::endl;
     }
 
-    // Ottieni articoli per categoria
-    std::vector<Item> alimentari = lista.getItemsPerCategoria("Alimentari");
-    std::cout << "Articoli nella categoria 'Alimentari':" << std::endl;
-    for (const auto& i : alimentari) {
-        std::cout << "- " << i.getName() << std::endl; // Usa il getter per il nome
+    // Ottieni articoli per categoria (con più di un oggetto)
+    std::cout << "\nArticoli nella categoria 'Frutta':" << std::endl;
+    std::vector<Item> frutta = lista.getItemsPerCategoria("Frutta");
+    for (const auto& i : frutta) {
+        std::cout << "- " << i.getName() << ", Quantità: " << i.getQuantity() << std::endl; // Usa i getter per nome e quantità
     }
 
     // Disiscrivi l'utente dalla lista della spesa
@@ -67,4 +91,3 @@ int main() {
 
     return 0;
 }
-
